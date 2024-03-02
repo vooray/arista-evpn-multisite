@@ -22,3 +22,9 @@ To access hosts from windows add route:
 ```
 route ADD 10.10.0.0 MASK 255.255.255.0 10.0.0.20
 ```
+
+Explore topology by running:
+```
+clab graph -s "0.0.0.0:80" -t  arista-evpn-multisite.yml
+```
+![IMAGE_DESCRIPTION](https://github.com/vooray/arista-evpn-multisite/blob/main/topology.jpg)
