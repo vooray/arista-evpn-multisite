@@ -1,0 +1,6 @@
+---
+platform: arista_eos
+username: admin
+password: admin
+
+    

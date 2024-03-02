@@ -1,0 +1,176 @@
+# v0.1
+# - to start lab exec: clab  dep --timeout 15m -t arista-evpn-multisite.yml
+# - access to MGMT network in Win: "route ADD 10.10.0.0 MASK 255.255.255.0 10.0.0.20"
+# 
+# - username/password: admin/passwd
+
+
+name: arista-evpn-multisite
+
+mgmt:
+  network: arista-evpn-multisite-mgmt
+  # Mind default static route inside configs for this network!
+  ipv4-subnet: 10.10.0.0/24
+
+topology:
+  kinds:
+    ceos:
+      image: ceos:4.30.5M
+      env:
+        CLAB_MGMT_VRF: VRF-MGMT
+  
+  nodes:
+    # TEST-NODE
+    TEST-NODE:
+      kind: ceos
+      mgmt-ipv4: 10.10.0.2
+
+    ### Site A
+    #
+    SPINE-01-DCA:
+      kind: ceos
+      mgmt-ipv4: 10.10.0.107
+    SPINE-02-DCA:
+      kind: ceos
+      mgmt-ipv4: 10.10.0.108
+    #
+    BR-LEAF-01A-DCA:
+      kind: ceos
+      mgmt-ipv4: 10.10.0.101
+    BR-LEAF-01B-DCA:
+      kind: ceos
+      mgmt-ipv4: 10.10.0.102
+    #
+    LEAF-01A-DCA:
+      kind: ceos
+      mgmt-ipv4: 10.10.0.103
+    LEAF-01B-DCA:
+      kind: ceos
+      mgmt-ipv4: 10.10.0.104
+    LEAF-02A-DCA:
+      kind: ceos
+      mgmt-ipv4: 10.10.0.105
+    LEAF-02B-DCA:
+      kind: ceos
+      mgmt-ipv4: 10.10.0.106
+
+    # CE
+    A-SRV01-DCA:
+      kind: ceos
+      mgmt-ipv4: 10.10.0.109
+    A-SRV02-DCA:
+      kind: ceos
+      mgmt-ipv4: 10.10.0.110
+    
+
+    ### Site B
+    #
+    SPINE-01-DCB:
+      kind: ceos
+      mgmt-ipv4: 10.10.0.207
+    SPINE-02-DCB:
+      kind: ceos
+      mgmt-ipv4: 10.10.0.208
+    #
+    BR-LEAF-01A-DCB:
+      kind: ceos
+      mgmt-ipv4: 10.10.0.201
+    BR-LEAF-01B-DCB:
+      kind: ceos
+      mgmt-ipv4: 10.10.0.202
+    #
+    LEAF-01A-DCB:
+      kind: ceos
+      mgmt-ipv4: 10.10.0.203
+    LEAF-01B-DCB:
+      kind: ceos
+      mgmt-ipv4: 10.10.0.204
+    LEAF-02A-DCB:
+      kind: ceos
+      mgmt-ipv4: 10.10.0.205
+    LEAF-02B-DCB:
+      kind: ceos
+      mgmt-ipv4: 10.10.0.206
+    # CE
+    A-SRV01-DCB:
+      kind: ceos
+      mgmt-ipv4: 10.10.0.209
+    A-SRV02-DCB:
+      kind: ceos
+      mgmt-ipv4: 10.10.0.210
+
+  links:
+    ### DCI
+    - endpoints: ["SPINE-01-DCA:eth12", "SPINE-01-DCB:eth12"]
+    - endpoints: ["SPINE-02-DCA:eth12", "SPINE-02-DCB:eth12"]
+
+    ### Site A
+    - endpoints: ["BR-LEAF-01A-DCA:eth9", "BR-LEAF-01B-DCA:eth9"]
+    - endpoints: ["BR-LEAF-01A-DCA:eth10", "BR-LEAF-01B-DCA:eth10"]
+
+    - endpoints: ["BR-LEAF-01A-DCA:eth11", "SPINE-01-DCA:eth1"]
+    - endpoints: ["BR-LEAF-01A-DCA:eth12", "SPINE-02-DCA:eth1"]
+
+    - endpoints: ["BR-LEAF-01B-DCA:eth11", "SPINE-01-DCA:eth2"]
+    - endpoints: ["BR-LEAF-01B-DCA:eth12", "SPINE-02-DCA:eth2"]
+    #
+    - endpoints: ["LEAF-01A-DCA:eth9", "LEAF-01B-DCA:eth9"]
+    - endpoints: ["LEAF-01A-DCA:eth10", "LEAF-01B-DCA:eth10"]
+
+    - endpoints: ["LEAF-01A-DCA:eth11", "SPINE-01-DCA:eth3"]
+    - endpoints: ["LEAF-01A-DCA:eth12", "SPINE-02-DCA:eth3"]
+
+    - endpoints: ["LEAF-01B-DCA:eth11", "SPINE-01-DCA:eth4"]
+    - endpoints: ["LEAF-01B-DCA:eth12", "SPINE-02-DCA:eth4"]
+    #
+    - endpoints: ["LEAF-02A-DCA:eth9", "LEAF-02B-DCA:eth9"]
+    - endpoints: ["LEAF-02A-DCA:eth10", "LEAF-02B-DCA:eth10"]
+
+    - endpoints: ["LEAF-02A-DCA:eth11", "SPINE-01-DCA:eth5"]
+    - endpoints: ["LEAF-02A-DCA:eth12", "SPINE-02-DCA:eth5"]
+
+    - endpoints: ["LEAF-02B-DCA:eth11", "SPINE-01-DCA:eth6"]
+    - endpoints: ["LEAF-02B-DCA:eth12", "SPINE-02-DCA:eth6"]
+
+    # CE
+    - endpoints: ["A-SRV01-DCA:eth1", "LEAF-01A-DCA:eth1"]
+    - endpoints: ["A-SRV01-DCA:eth2", "LEAF-01B-DCA:eth1"]
+
+    - endpoints: ["A-SRV02-DCA:eth1", "LEAF-01A-DCA:eth2"]
+    - endpoints: ["A-SRV02-DCA:eth2", "LEAF-01B-DCA:eth2"]
+
+    ### Site B
+    - endpoints: ["BR-LEAF-01A-DCB:eth9", "BR-LEAF-01B-DCB:eth9"]
+    - endpoints: ["BR-LEAF-01A-DCB:eth10", "BR-LEAF-01B-DCB:eth10"]
+
+    - endpoints: ["BR-LEAF-01A-DCB:eth11", "SPINE-01-DCB:eth1"]
+    - endpoints: ["BR-LEAF-01A-DCB:eth12", "SPINE-02-DCB:eth1"]
+
+    - endpoints: ["BR-LEAF-01B-DCB:eth11", "SPINE-01-DCB:eth2"]
+    - endpoints: ["BR-LEAF-01B-DCB:eth12", "SPINE-02-DCB:eth2"]
+    #
+    - endpoints: ["LEAF-01A-DCB:eth9", "LEAF-01B-DCB:eth9"]
+    - endpoints: ["LEAF-01A-DCB:eth10", "LEAF-01B-DCB:eth10"]
+
+    - endpoints: ["LEAF-01A-DCB:eth11", "SPINE-01-DCB:eth3"]
+    - endpoints: ["LEAF-01A-DCB:eth12", "SPINE-02-DCB:eth3"]
+
+    - endpoints: ["LEAF-01B-DCB:eth11", "SPINE-01-DCB:eth4"]
+    - endpoints: ["LEAF-01B-DCB:eth12", "SPINE-02-DCB:eth4"]
+    #
+    - endpoints: ["LEAF-02A-DCB:eth9", "LEAF-02B-DCB:eth9"]
+    - endpoints: ["LEAF-02A-DCB:eth10", "LEAF-02B-DCB:eth10"]
+
+    - endpoints: ["LEAF-02A-DCB:eth11", "SPINE-01-DCB:eth5"]
+    - endpoints: ["LEAF-02A-DCB:eth12", "SPINE-02-DCB:eth5"]
+
+    - endpoints: ["LEAF-02B-DCB:eth11", "SPINE-01-DCB:eth6"]
+    - endpoints: ["LEAF-02B-DCB:eth12", "SPINE-02-DCB:eth6"]
+    # CE
+    - endpoints: ["A-SRV01-DCB:eth1", "LEAF-02A-DCB:eth1"]
+    - endpoints: ["A-SRV01-DCB:eth2", "LEAF-02B-DCB:eth1"]
+
+    - endpoints: ["A-SRV02-DCB:eth1", "LEAF-02A-DCB:eth2"]
+    - endpoints: ["A-SRV02-DCB:eth2", "LEAF-02B-DCB:eth2"]
+
+

@@ -1,0 +1,93 @@
+---
+SPINE-01-DCA:
+  data:
+    config_file: "./init-configs/SPINE-01-DCA.txt"
+  hostname: 10.10.0.107
+SPINE-02-DCA:
+  data:
+    config_file: "./init-configs/SPINE-02-DCA.txt"
+  hostname: 10.10.0.108
+#
+BR-LEAF-01A-DCA:
+  data:
+    config_file: "./init-configs/BR-LEAF-01A-DCA.txt"
+  hostname: 10.10.0.101
+BR-LEAF-01B-DCA:
+  data:
+    config_file: "./init-configs/BR-LEAF-01B-DCA.txt"
+  hostname: 10.10.0.102
+#
+LEAF-01A-DCA:
+  data:
+    config_file: "./init-configs/LEAF-01A-DCA.txt"
+  hostname: 10.10.0.103
+LEAF-01B-DCA:
+  data:
+    config_file: "./init-configs/LEAF-01B-DCA.txt"
+  hostname: 10.10.0.104
+LEAF-02A-DCA:
+  data:
+    config_file: "./init-configs/LEAF-02A-DCA.txt"
+  hostname: 10.10.0.105
+LEAF-02B-DCA:
+  data:
+    config_file: "./init-configs/LEAF-02B-DCA.txt"
+  hostname: 10.10.0.106
+
+# CE
+A-SRV01-DCA:
+  data:
+    config_file: "./init-configs/A-SRV01-DCA.txt"
+  hostname: 10.10.0.109
+A-SRV02-DCA:
+  data:
+    config_file: "./init-configs/A-SRV02-DCA.txt"
+  hostname: 10.10.0.110
+
+
+### Site B
+#
+SPINE-01-DCB:
+  data:
+    config_file: "./init-configs/SPINE-01-DCB.txt"
+  hostname: 10.10.0.207
+SPINE-02-DCB:
+  data:
+    config_file: "./init-configs/SPINE-02-DCB.txt"
+  hostname: 10.10.0.208
+#
+BR-LEAF-01A-DCB:
+  data:
+    config_file: "./init-configs/BR-LEAF-01A-DCB.txt"
+  hostname: 10.10.0.201
+BR-LEAF-01B-DCB:
+  data:
+    config_file: "./init-configs/BR-LEAF-01B-DCB.txt"
+  hostname: 10.10.0.202
+#
+LEAF-01A-DCB:
+  data:
+    config_file: "./init-configs/LEAF-01A-DCB.txt"
+  hostname: 10.10.0.203
+LEAF-01B-DCB:
+  data:
+    config_file: "./init-configs/LEAF-01B-DCB.txt"
+  hostname: 10.10.0.204
+LEAF-02A-DCB:
+  data:
+    config_file: "./init-configs/LEAF-02A-DCB.txt"
+  hostname: 10.10.0.205
+LEAF-02B-DCB:
+  data:
+    config_file: "./init-configs/LEAF-02B-DCB.txt"
+  hostname: 10.10.0.206
+# CE
+A-SRV01-DCB:
+  data:
+    config_file: "./init-configs/A-SRV01-DCB.txt"
+  hostname: 10.10.0.209
+A-SRV02-DCB:
+  data:
+    config_file: "./init-configs/A-SRV02-DCB.txt"
+  hostname: 10.10.0.210
+

@@ -1,0 +1,46 @@
+!
+no aaa root
+!
+username admin privilege 15 role network-admin secret sha512 $6$8NSrm2xex47tImCx$wblEgMp8oKBug/tPYqhVKG8Qtlg8Cg5Ir3JTmFexKfHj.JTE77Z/5jdnM/bebaw7dFHr/ujT8nGZVRvns/juC/
+!
+transceiver qsfp default-mode 4x10G
+!
+service routing protocols model multi-agent
+!
+hostname A-SRV02-DCB
+!
+spanning-tree mode mstp
+!
+system l1
+   unsupported speed action error
+   unsupported error-correction action error
+!
+vrf instance VRF-MGMT
+!
+management api http-commands
+   no shutdown
+   !
+   vrf VRF-MGMT
+      no shutdown
+!
+management api gnmi
+   transport grpc default
+      vrf VRF-MGMT
+!
+management api netconf
+   transport ssh default
+      vrf VRF-MGMT
+!
+interface Ethernet1
+!
+interface Ethernet2
+!
+interface Management0
+   vrf VRF-MGMT
+   ip address 10.10.0.210/24
+!
+no ip routing
+ip routing vrf VRF-MGMT
+!
+ip route vrf VRF-MGMT 0.0.0.0/0 10.10.0.1 name MGMT-DEFAULT
+!

@@ -1,0 +1,152 @@
+!
+no aaa root
+!
+username admin privilege 15 role network-admin secret sha512 $6$PNUzTpdWICPhcpsi$HJ5xCqpeqI/HsNqta4AVY8OpviGKyXA/T7pE/c40dvqANos8ER1Gj9Xp40pUVKjARK6r8wczYHPZiwdnEmpVF0
+!
+terminal length 0
+terminal width 196
+!
+transceiver qsfp default-mode 4x10G
+!
+service routing protocols model multi-agent
+!
+hostname LEAF-01B-DCB
+!
+spanning-tree mode mstp
+no spanning-tree vlan-id 4094
+!
+system l1
+   unsupported speed action error
+   unsupported error-correction action error
+!
+vlan 4064
+   name MLAG
+!
+vlan 4094
+   name MLAG-iBGP-PEERING
+!
+vrf instance VRF-MGMT
+!
+management api http-commands
+   no shutdown
+   !
+   vrf VRF-MGMT
+      no shutdown
+!
+management api gnmi
+   transport grpc default
+      vrf VRF-MGMT
+!
+management api netconf
+   transport ssh default
+      vrf VRF-MGMT
+!
+interface Port-Channel4094
+   switchport mode trunk
+!
+interface Ethernet9
+   mtu 9214
+   channel-group 4094 mode active
+!
+interface Ethernet10
+   mtu 9214
+   channel-group 4094 mode active
+!
+interface Ethernet11
+   mtu 9214
+   no switchport
+   ip address 10.2.2.7/31
+!
+interface Ethernet12
+   mtu 9214
+   no switchport
+   ip address 10.2.2.135/31
+!
+interface Loopback0
+   ip address 10.2.0.3/32
+!
+interface Loopback1
+   description "VXLAN MLAG Common Source"
+   ip address 10.2.1.1/32
+!
+interface Management0
+   vrf VRF-MGMT
+   ip address 10.10.0.204/24
+!
+interface Vlan4094
+   description "MLAG-iBGP-PEERING"
+   no autostate
+   ip address 192.0.0.1/31
+!
+interface Vxlan1
+   vxlan source-interface Loopback1
+   vxlan virtual-router encapsulation mac-address mlag-system-id
+   vxlan udp-port 4789
+!
+ip virtual-router mac-address 00:1c:73:aa:bb:cc
+!
+ip routing
+ip routing vrf VRF-MGMT
+!
+ip prefix-list PFX-LIST-LOOPBACKS
+   seq 10 permit 10.2.0.0/23 eq 32
+!
+ip prefix-list PFX-LIST-P2P-UNDERLAY
+   seq 10 permit 10.2.2.0/24 le 31
+!
+mlag configuration
+   domain-id MLAG-DOM-LEAF
+   local-interface Vlan4094
+   peer-address 192.0.0.0
+   peer-link Port-Channel4094
+   reload-delay mlag 300
+   reload-delay non-mlag 330
+!
+ip route vrf VRF-MGMT 0.0.0.0/0 10.10.0.1 name MGMT-DEFAULT
+!
+route-map R-MAP-REDISTRIBUTE-CONNECTED permit 10
+   match ip address prefix-list PFX-LIST-LOOPBACKS
+!
+route-map R-MAP-REDISTRIBUTE-CONNECTED permit 20
+   match ip address prefix-list PFX-LIST-P2P-UNDERLAY
+!
+router bfd
+   interval 1000 min-rx 2000 multiplier 5 default
+!
+router bgp 65201
+   router-id 10.2.0.3
+   no bgp default ipv4-unicast
+   maximum-paths 2
+   neighbor PEER-GROUP-EVPN-OVERLAY peer group
+   neighbor PEER-GROUP-EVPN-OVERLAY remote-as 65021
+   neighbor PEER-GROUP-EVPN-OVERLAY update-source Loopback0
+   neighbor PEER-GROUP-EVPN-OVERLAY bfd
+   neighbor PEER-GROUP-EVPN-OVERLAY ebgp-multihop 3
+   neighbor PEER-GROUP-EVPN-OVERLAY password 7 4n0Xq34LNCkNYH2HjMrKTg==
+   neighbor PEER-GROUP-EVPN-OVERLAY send-community
+   neighbor PEER-GROUP-EVPN-OVERLAY maximum-routes 0
+   neighbor PEER-GROUP-IPv4-UNDERLAY peer group
+   neighbor PEER-GROUP-IPv4-UNDERLAY remote-as 65021
+   neighbor PEER-GROUP-IPv4-UNDERLAY password 7 9rHs2N/mHwwc/stAiIIPPQ==
+   neighbor PEER-GROUP-IPv4-UNDERLAY send-community
+   neighbor PEER-GROUP-IPv4-UNDERLAY maximum-routes 12000
+   neighbor PEER-GROUP-MLAG-IPv4-UNDERLAY peer group
+   neighbor PEER-GROUP-MLAG-IPv4-UNDERLAY remote-as 65201
+   neighbor PEER-GROUP-MLAG-IPv4-UNDERLAY next-hop-self
+   neighbor PEER-GROUP-MLAG-IPv4-UNDERLAY password 7 r7eM/C9rXRJ/utARY8dTow==
+   neighbor PEER-GROUP-MLAG-IPv4-UNDERLAY send-community
+   neighbor PEER-GROUP-MLAG-IPv4-UNDERLAY maximum-routes 12000
+   neighbor 10.2.0.254 peer group PEER-GROUP-EVPN-OVERLAY
+   neighbor 10.2.0.255 peer group PEER-GROUP-EVPN-OVERLAY
+   neighbor 10.2.2.6 peer group PEER-GROUP-IPv4-UNDERLAY
+   neighbor 10.2.2.134 peer group PEER-GROUP-IPv4-UNDERLAY
+   neighbor 192.0.0.0 peer group PEER-GROUP-MLAG-IPv4-UNDERLAY
+   redistribute connected route-map R-MAP-REDISTRIBUTE-CONNECTED
+   !
+   address-family evpn
+      neighbor PEER-GROUP-EVPN-OVERLAY activate
+   !
+   address-family ipv4
+      neighbor PEER-GROUP-IPv4-UNDERLAY activate
+      neighbor PEER-GROUP-MLAG-IPv4-UNDERLAY activate
+!

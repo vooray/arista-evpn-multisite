@@ -1,0 +1,133 @@
+!
+no aaa root
+!
+username admin privilege 15 role network-admin secret sha512 $6$NgbPtJEdf57jJJui$rp6MVNjDNh5Bv5lWq5XRfdjM4tVjFjHKWy7ZQHc..y022QW9IDxpL8U7V/dLYm/RvadT13DWMPTlclAfaJwnc.
+!
+terminal width 196
+!
+transceiver qsfp default-mode 4x10G
+!
+service routing protocols model multi-agent
+!
+hostname SPINE-01-DCA
+!
+spanning-tree mode mstp
+!
+system l1
+   unsupported speed action error
+   unsupported error-correction action error
+!
+vrf instance VRF-MGMT
+!
+management api http-commands
+   no shutdown
+   !
+   vrf VRF-MGMT
+      no shutdown
+!
+management api gnmi
+   transport grpc default
+      vrf VRF-MGMT
+!
+management api netconf
+   transport ssh default
+      vrf VRF-MGMT
+!
+interface Ethernet1
+   mtu 9214
+   no switchport
+   ip address 10.1.2.0/31
+!
+interface Ethernet2
+   mtu 9214
+   no switchport
+   ip address 10.1.2.2/31
+!
+interface Ethernet3
+   mtu 9214
+   no switchport
+   ip address 10.1.2.4/31
+!
+interface Ethernet4
+   mtu 9214
+   no switchport
+   ip address 10.1.2.6/31
+!
+interface Ethernet5
+   mtu 9214
+   no switchport
+   ip address 10.1.2.8/31
+!
+interface Ethernet6
+   mtu 9214
+   no switchport
+   ip address 10.1.2.10/31
+!
+interface Ethernet12
+   mtu 9214
+   no switchport
+   ip address 10.0.0.0/31
+!
+interface Loopback0
+   ip address 10.1.0.254/32
+!
+interface Management0
+   vrf VRF-MGMT
+   ip address 10.10.0.107/24
+!
+ip routing
+ip routing vrf VRF-MGMT
+!
+ip prefix-list PFX-LIST-LOOPBACKS
+   seq 10 permit 10.1.0.0/23 eq 32
+!
+ip prefix-list PFX-LIST-P2P-UNDERLAY
+   seq 10 permit 10.1.2.0/24 le 31
+!
+ip route vrf VRF-MGMT 0.0.0.0/0 10.10.0.1 name MGMT-DEFAULT
+!
+route-map R-MAP-REDISTRIBUTE-CONNECTED permit 10
+   match ip address prefix-list PFX-LIST-LOOPBACKS
+!
+route-map R-MAP-REDISTRIBUTE-CONNECTED permit 20
+   match ip address prefix-list PFX-LIST-P2P-UNDERLAY
+!
+peer-filter PEER-FILTER-LEAF-AS-RANGE
+   10 match as-range 65100-65199 result accept
+!
+router bfd
+   interval 1000 min-rx 2000 multiplier 5 default
+!
+router bgp 65011
+   router-id 10.1.0.254
+   no bgp default ipv4-unicast
+   bgp listen range 10.1.0.0/24 peer-group PEER-GROUP-EVPN-OVERLAY peer-filter LEAF-AS-RANGE
+   bgp listen range 10.1.2.0/24 peer-group PEER-GROUP-IPv4-UNDERLAY peer-filter PEER-FILTER-LEAF-AS-RANGE
+   neighbor PEER-GROUP-DCI peer group
+   neighbor PEER-GROUP-DCI remote-as 65021
+   neighbor PEER-GROUP-DCI bfd
+   neighbor PEER-GROUP-DCI password 7 tKinZZ1/YyUrbe4YghGBDg==
+   neighbor PEER-GROUP-DCI send-community
+   neighbor PEER-GROUP-EVPN-OVERLAY peer group
+   neighbor PEER-GROUP-EVPN-OVERLAY next-hop-unchanged
+   neighbor PEER-GROUP-EVPN-OVERLAY update-source Loopback0
+   neighbor PEER-GROUP-EVPN-OVERLAY bfd
+   neighbor PEER-GROUP-EVPN-OVERLAY ebgp-multihop 3
+   neighbor PEER-GROUP-EVPN-OVERLAY password 7 4n0Xq34LNCkNYH2HjMrKTg==
+   neighbor PEER-GROUP-EVPN-OVERLAY send-community
+   neighbor PEER-GROUP-EVPN-OVERLAY maximum-routes 0
+   neighbor PEER-GROUP-IPv4-UNDERLAY peer group
+   neighbor PEER-GROUP-IPv4-UNDERLAY password 7 9rHs2N/mHwwc/stAiIIPPQ==
+   neighbor PEER-GROUP-IPv4-UNDERLAY send-community
+   neighbor PEER-GROUP-IPv4-UNDERLAY maximum-routes 12000
+   neighbor 10.0.0.1 peer group PEER-GROUP-DCI
+   redistribute connected route-map R-MAP-REDISTRIBUTE-CONNECTED
+   !
+   address-family evpn
+      neighbor PEER-GROUP-DCI activate
+      neighbor PEER-GROUP-EVPN-OVERLAY activate
+   !
+   address-family ipv4
+      neighbor PEER-GROUP-DCI activate
+      neighbor PEER-GROUP-IPv4-UNDERLAY activate
+!
