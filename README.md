@@ -17,4 +17,8 @@ to stop LAB:
 clab des -t arista-evpn-multisite.yml
 ```
 MGMT network: 10.10.0.0/24
-To access hosts from windows add route: `route ADD 10.10.0.0 MASK 255.255.255.0 10.0.0.20`
+
+To access hosts from windows add route: 
+```
+route ADD 10.10.0.0 MASK 255.255.255.0 10.0.0.20
+```
